@@ -3,6 +3,5 @@ services:
     name: story-generator-bot
     env: node
     buildCommand: npm install
-    startCommand: npm start
-    staticPublishPath: .
+    startCommand: npx serve -s . -l $PORT
 
