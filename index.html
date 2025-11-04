@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Generator Bot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Home Screen -->
+    <div class="home-screen" id="homeScreen">
+        <div class="home-content">
+            <div class="home-header">
+                <div class="language-selector">
+                    <button class="lang-btn" id="langBtn">
+                        <span class="lang-flag" id="langFlag">🌐</span>
+                        <span id="langName">English</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="lang-dropdown" id="langDropdown">
+                        <button class="lang-option" data-lang="en">
+                            <span class="lang-flag">🇺🇸</span>
+                            <span>English</span>
+                        </button>
+                        <button class="lang-option" data-lang="es">
+                            <span class="lang-flag">🇪🇸</span>
+                            <span>Español</span>
+                        </button>
+                        <button class="lang-option" data-lang="fr">
+                            <span class="lang-flag">🇫🇷</span>
+                            <span>Français</span>
+                        </button>
+                        <button class="lang-option" data-lang="de">
+                            <span class="lang-flag">🇩🇪</span>
+                            <span>Deutsch</span>
+                        </button>
+                        <button class="lang-option" data-lang="it">
+                            <span class="lang-flag">🇮🇹</span>
+                            <span>Italiano</span>
+                        </button>
+                        <button class="lang-option" data-lang="pt">
+                            <span class="lang-flag">🇵🇹</span>
+                            <span>Português</span>
+                        </button>
+                        <button class="lang-option" data-lang="hi">
+                            <span class="lang-flag">🇮🇳</span>
+                            <span>हिंदी</span>
+                        </button>
+                        <button class="lang-option" data-lang="ja">
+                            <span class="lang-flag">🇯🇵</span>
+                            <span>日本語</span>
+                        </button>
+                        <button class="lang-option" data-lang="zh">
+                            <span class="lang-flag">🇨🇳</span>
+                            <span>中文</span>
+                        </button>
+                        <button class="lang-option" data-lang="ar">
+                            <span class="lang-flag">🇸🇦</span>
+                            <span>العربية</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="home-hero">
+                <div class="hero-emoji">✨📖✨</div>
+                <h1 class="hero-title" data-i18n="home.title">Welcome to Story Generator Bot</h1>
+                <p class="hero-subtitle" data-i18n="home.subtitle">Transform your ideas into captivating stories with AI-powered creativity</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3 data-i18n="feature1.title">AI-Powered</h3>
+                        <p data-i18n="feature1.desc">Advanced AI creates unique stories</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 data-i18n="feature2.title">Instant Generation</h3>
+                        <p data-i18n="feature2.desc">Get stories in seconds</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3 data-i18n="feature3.title">Creative Control</h3>
+                        <p data-i18n="feature3.desc">Customize creativity & length</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3 data-i18n="feature4.title">Multilingual</h3>
+                        <p data-i18n="feature4.desc">Stories in multiple languages</p>
+                    </div>
+                </div>
+                
+                <button class="start-btn" id="startChatBtn">
+                    <span data-i18n="home.startButton">Start Creating Stories</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div class="app-container" id="chatScreen" style="display: none;">
+        <!-- History Sidebar -->
+        <aside class="history-sidebar" id="historySidebar">
+            <div class="history-header">
+                <h2 data-i18n="history.title">📚 Story History</h2>
+                <button class="icon-btn close-history-btn" id="closeHistoryBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="history-content" id="historyContent">
+                <div class="history-empty" id="historyEmpty">
+                    <div class="empty-icon">📖</div>
+                    <p data-i18n="history.empty">No stories yet. Start creating!</p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <!-- Header -->
+            <header class="chat-header">
+                <div class="header-content">
+                    <div class="bot-info">
+                        <button class="icon-btn history-toggle-btn" id="historyToggleBtn" title="History" data-i18n-title="chat.history">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h18v18H3z"></path>
+                                <path d="M3 9h18M9 21V9"></path>
+                            </svg>
+                        </button>
+                        <div class="bot-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="bot-details">
+                            <h1 data-i18n="chat.title">Story Generator Bot</h1>
+                            <p class="status" data-i18n="chat.status">Online</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="homeBtn" title="Home" data-i18n-title="chat.home">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="settingsBtn" title="Settings" data-i18n-title="chat.settings">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="clearBtn" title="Clear Chat" data-i18n-title="chat.clear">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Chat Messages Container -->
+            <main class="chat-container">
+            <div class="messages-wrapper" id="messagesWrapper">
+                <div class="welcome-message">
+                    <div class="welcome-avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <div class="welcome-content">
+                        <h2 data-i18n="chat.welcome.title">Welcome to Story Generator Bot! 🎉</h2>
+                        <p data-i18n="chat.welcome.subtitle">Just type a few words or a prompt, and I'll create an amazing story for you. Try something like:</p>
+                        <div class="suggestion-chips">
+                            <button class="chip" data-prompt="A magical forest adventure" data-i18n="chat.welcome.suggestion1">🌲 A magical forest adventure</button>
+                            <button class="chip" data-prompt="A sci-fi space mission" data-i18n="chat.welcome.suggestion2">🚀 A sci-fi space mission</button>
+                            <button class="chip" data-prompt="A detective mystery" data-i18n="chat.welcome.suggestion3">🕵️ A detective mystery</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="messages" id="messages"></div>
+            </div>
+        </main>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <p data-i18n="chat.typing">AI is crafting your story... ✨</p>
+        </div>
+
+            <!-- Input Area -->
+            <footer class="chat-input-area">
+            <div class="input-container">
+                <div class="attach-menu">
+                    <button class="icon-btn attach-btn" id="attachBtn" title="Attach" data-i18n-title="chat.attach">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                    </button>
+                    <div class="attach-dropdown" id="attachDropdown">
+                        <button class="attach-option" id="photoBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span data-i18n="chat.attachPhoto">📷 Photo</span>
+                        </button>
+                        <button class="attach-option" id="cameraBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            <span data-i18n="chat.attachCamera">📸 Camera</span>
+                        </button>
+                        <button class="attach-option" id="fileBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                            <span data-i18n="chat.attachFile">📄 File</span>
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*,video/*,.pdf,.doc,.docx,.txt" multiple style="display: none;">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Type a few words to generate a story..."
+                    data-i18n-placeholder="chat.inputPlaceholder"
+                    rows="1"
+                ></textarea>
+                <button class="icon-btn emoji-btn" id="emojiBtn" title="Emoji" data-i18n-title="chat.emoji">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </button>
+                <button class="send-btn" id="sendBtn" title="Send" data-i18n-title="chat.send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+                <div class="attachments-preview" id="attachmentsPreview"></div>
+            </footer>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="settings.title">⚙️ Settings</h2>
+                    <button class="icon-btn close-btn" id="closeSettingsBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label for="temperature" data-i18n="settings.temperature.label">🎨 Temperature (Creativity): <span id="tempValue">0.7</span></label>
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                        <small data-i18n="settings.temperature.hint">Higher values = more creative, Lower values = more focused</small>
+                    </div>
+                    <div class="setting-item">
+                        <label for="maxTokens" data-i18n="settings.tokens.label">📏 Max Tokens (Length): <span id="tokensValue">1000</span></label>
+                        <input type="range" id="maxTokens" min="200" max="2000" step="100" value="1000">
+                        <small data-i18n="settings.tokens.hint">Controls the maximum length of the generated story</small>
+                    </div>
+                    <div class="setting-item">
+                        <label for="model" data-i18n="settings.model.label">🤖 Model:</label>
+                        <select id="model">
+                            <option value="gpt-4.1-nano" selected>GPT-4.1 Nano</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
