@@ -751,8 +751,12 @@ async function sendMessage() {
     currentHistoryId = null;
     renderHistory();
     
-    // Disable send button
-    sendBtn.disabled = true;
+    // Disable send button and prevent multiple clicks
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.5';
+        sendBtn.style.pointerEvents = 'none';
+    }
     
     // Show typing indicator
     showTypingIndicator();
