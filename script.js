@@ -254,11 +254,48 @@ function setupEventListeners() {
         }
     });
     
-    // Chat functionality
+    // Chat functionality - Send button with Android touch support
+    let sendTouchStart = 0;
+    let sendTouchMoved = false;
+    
+    const handleSend = () => {
+        if (!sendBtn?.disabled) {
+            sendMessage();
+        }
+    };
+    
+    // Send button touch events for Android
+    sendBtn?.addEventListener('touchstart', (e) => {
+        sendTouchStart = Date.now();
+        sendTouchMoved = false;
+        e.stopPropagation();
+    }, { passive: true });
+    
+    sendBtn?.addEventListener('touchmove', () => {
+        sendTouchMoved = true;
+    }, { passive: true });
+    
+    sendBtn?.addEventListener('touchend', (e) => {
+        if (!sendTouchMoved && (Date.now() - sendTouchStart < 300) && !sendBtn?.disabled) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSend();
+        }
+    });
+    
+    sendBtn?.addEventListener('click', (e) => {
+        if (Date.now() - sendTouchStart > 300) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSend();
+        }
+    });
+    
+    // Enter key support
     messageInput?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            sendMessage();
+            handleSend();
         }
     });
     clearBtn?.addEventListener('click', clearChat);
@@ -684,8 +721,17 @@ window.deleteHistoryItem = deleteHistoryItem;
 
 // Send Message
 async function sendMessage() {
+    if (!messageInput || !sendBtn) return;
+    
     const userMessage = messageInput.value.trim();
-    if (!userMessage && attachedFiles.length === 0) return;
+    if (!userMessage && attachedFiles.length === 0) {
+        // Show a brief feedback
+        messageInput.focus();
+        return;
+    }
+    
+    // Prevent multiple sends
+    if (sendBtn.disabled) return;
     
     // Hide welcome message
     if (welcomeMessage) {

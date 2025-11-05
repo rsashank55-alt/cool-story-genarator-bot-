@@ -982,12 +982,18 @@ body {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    z-index: 10;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .send-btn:hover:not(:disabled),
-.send-btn:active:not(:disabled) {
+.send-btn:active:not(:disabled),
+.send-btn:focus:not(:disabled) {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    outline: none;
 }
 
 .send-btn:active:not(:disabled) {
@@ -998,12 +1004,18 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
     touch-action: none;
+    pointer-events: none;
+}
+
+.send-btn:not(:disabled) {
+    pointer-events: auto;
 }
 
 .send-btn svg {
     width: 20px;
     height: 20px;
     pointer-events: none;
+    display: block;
 }
 
 .attach-btn,
@@ -1491,17 +1503,35 @@ body {
         font-size: 16px; /* Prevents zoom on iOS and Android */
         -webkit-appearance: none;
         appearance: none;
+        width: 100%;
     }
     
     /* Fix Android input focus */
     .message-input:focus {
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
+        outline: none;
     }
     
     /* Android keyboard fix */
     .chat-input-area {
         padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+    
+    .send-btn {
+        min-width: 48px;
+        min-height: 48px;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        z-index: 20;
+        position: relative;
+    }
+    
+    .input-container {
+        position: relative;
+        z-index: 5;
     }
 
     /* Better touch targets */
