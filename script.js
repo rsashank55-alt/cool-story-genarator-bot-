@@ -776,8 +776,24 @@ async function sendMessage() {
         addMessage(t?.notifications?.error || 'Sorry, I encountered an error while generating your story. Please try again.', 'bot');
         console.error('Error:', error);
     } finally {
-        sendBtn.disabled = false;
-        messageInput.focus();
+        // Re-enable send button
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+            sendBtn.style.pointerEvents = 'auto';
+        }
+        
+        // Focus input on mobile might cause keyboard issues, so delay it
+        if (window.innerWidth > 768) {
+            messageInput?.focus();
+        } else {
+            // On mobile, don't auto-focus to prevent keyboard popup
+            setTimeout(() => {
+                if (document.activeElement !== messageInput && messageInput) {
+                    messageInput.focus();
+                }
+            }, 500);
+        }
     }
 }
 
