@@ -58,8 +58,30 @@ const closeHistoryBtn = document.getElementById('closeHistoryBtn');
 const historyContent = document.getElementById('historyContent');
 const historyEmpty = document.getElementById('historyEmpty');
 
-// Initialize
+// Initialize (Android compatible)
 document.addEventListener('DOMContentLoaded', () => {
+    // Fix Android viewport height
+    const setViewportHeight = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(setViewportHeight, 100);
+    });
+    
+    // Prevent double-tap zoom on Android
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+    
     loadLanguage();
     loadSettings();
     loadStoryHistory();
@@ -67,6 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
     autoResizeTextarea();
     updateTranslations();
     renderHistory();
+    
+    // Fix Android keyboard issues
+    if (window.innerWidth <= 768) {
+        // Adjust viewport when keyboard appears
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const chatInputArea = document.querySelector('.chat-input-area');
+                if (chatInputArea) {
+                    chatInputArea.style.paddingBottom = 'env(safe-area-inset-bottom)';
+                }
+            });
+        }
+    }
 });
 
 // Language Management
@@ -251,8 +286,11 @@ function setupEventListeners() {
         saveSettings();
     });
     
-    // Suggestion chips - fix to work with translations (touch support)
+    // Suggestion chips - fix to work with translations (touch support for Android)
     suggestionChips.forEach(chip => {
+        let touchStartTime = 0;
+        let touchMoved = false;
+        
         const handleChip = () => {
             const prompt = chip.getAttribute('data-prompt');
             if (prompt) {
@@ -264,25 +302,61 @@ function setupEventListeners() {
                 }, 100);
             }
         };
-        chip.addEventListener('click', handleChip);
+        
+        // Android-friendly touch handling
+        chip.addEventListener('touchstart', (e) => {
+            touchStartTime = Date.now();
+            touchMoved = false;
+        }, { passive: true });
+        
+        chip.addEventListener('touchmove', () => {
+            touchMoved = true;
+        }, { passive: true });
+        
         chip.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            handleChip();
+            if (!touchMoved && (Date.now() - touchStartTime < 300)) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleChip();
+            }
+        });
+        
+        chip.addEventListener('click', (e) => {
+            // Only handle click if touch didn't fire (desktop)
+            if (Date.now() - touchStartTime > 300) {
+                handleChip();
+            }
         });
     });
 
-    // File attachment functionality (touch support)
-    attachBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        attachDropdown?.classList.toggle('active');
-        attachBtn?.classList.toggle('active');
-    });
+    // File attachment functionality (Android touch support)
+    let attachTouchStart = 0;
+    let attachTouchMoved = false;
+    
+    attachBtn?.addEventListener('touchstart', () => {
+        attachTouchStart = Date.now();
+        attachTouchMoved = false;
+    }, { passive: true });
+    
+    attachBtn?.addEventListener('touchmove', () => {
+        attachTouchMoved = true;
+    }, { passive: true });
     
     attachBtn?.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        attachDropdown?.classList.toggle('active');
-        attachBtn?.classList.toggle('active');
+        if (!attachTouchMoved && (Date.now() - attachTouchStart < 300)) {
+            e.preventDefault();
+            e.stopPropagation();
+            attachDropdown?.classList.toggle('active');
+            attachBtn?.classList.toggle('active');
+        }
+    });
+    
+    attachBtn?.addEventListener('click', (e) => {
+        if (Date.now() - attachTouchStart > 300) {
+            e.stopPropagation();
+            attachDropdown?.classList.toggle('active');
+            attachBtn?.classList.toggle('active');
+        }
     });
 
     photoBtn?.addEventListener('click', () => {
@@ -314,7 +388,10 @@ function setupEventListeners() {
         }
     });
 
-    // History sidebar (touch support)
+    // History sidebar (Android touch support)
+    let historyTouchStart = 0;
+    let historyTouchMoved = false;
+    
     const toggleHistory = () => {
         historySidebar?.classList.toggle('hidden');
     };
@@ -323,16 +400,48 @@ function setupEventListeners() {
         historySidebar?.classList.add('hidden');
     };
     
-    historyToggleBtn?.addEventListener('click', toggleHistory);
+    historyToggleBtn?.addEventListener('touchstart', () => {
+        historyTouchStart = Date.now();
+        historyTouchMoved = false;
+    }, { passive: true });
+    
+    historyToggleBtn?.addEventListener('touchmove', () => {
+        historyTouchMoved = true;
+    }, { passive: true });
+    
     historyToggleBtn?.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        toggleHistory();
+        if (!historyTouchMoved && (Date.now() - historyTouchStart < 300)) {
+            e.preventDefault();
+            toggleHistory();
+        }
+    });
+    
+    historyToggleBtn?.addEventListener('click', () => {
+        if (Date.now() - historyTouchStart > 300) {
+            toggleHistory();
+        }
     });
 
-    closeHistoryBtn?.addEventListener('click', closeHistory);
+    closeHistoryBtn?.addEventListener('touchstart', () => {
+        historyTouchStart = Date.now();
+        historyTouchMoved = false;
+    }, { passive: true });
+    
+    closeHistoryBtn?.addEventListener('touchmove', () => {
+        historyTouchMoved = true;
+    }, { passive: true });
+    
     closeHistoryBtn?.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        closeHistory();
+        if (!historyTouchMoved && (Date.now() - historyTouchStart < 300)) {
+            e.preventDefault();
+            closeHistory();
+        }
+    });
+    
+    closeHistoryBtn?.addEventListener('click', () => {
+        if (Date.now() - historyTouchStart > 300) {
+            closeHistory();
+        }
     });
 
     // Close history sidebar on mobile when clicking outside
@@ -349,31 +458,51 @@ function setupEventListeners() {
     }
 }
 
-// Auto-resize textarea
+// Auto-resize textarea (Android compatible)
 let resizeTimeout;
 function autoResizeTextarea() {
     if (!messageInput) return;
     
     const resize = () => {
         messageInput.style.height = 'auto';
-        messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
-        // Scroll to bottom on mobile
+        const newHeight = Math.min(messageInput.scrollHeight, 120);
+        messageInput.style.height = newHeight + 'px';
+        
+        // Scroll to bottom on mobile (Android compatible)
         if (window.innerWidth <= 768) {
             setTimeout(() => {
-                messagesWrapper?.scrollTo({ top: messagesWrapper.scrollHeight, behavior: 'smooth' });
+                if (messagesWrapper) {
+                    messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+                }
             }, 100);
         }
     };
     
-    messageInput.addEventListener('input', () => {
+    // Remove existing listeners to prevent duplicates
+    const inputHandler = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(resize, 10);
-    });
+    };
     
-    // Handle iOS resize
-    messageInput.addEventListener('focus', () => {
+    const focusHandler = () => {
         setTimeout(resize, 100);
-    });
+        // Fix Android keyboard covering input
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    };
+    
+    messageInput.addEventListener('input', inputHandler, { passive: true });
+    messageInput.addEventListener('focus', focusHandler);
+    
+    // Handle Android keyboard resize
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            setTimeout(resize, 100);
+        });
+    }
 }
 
 // File handling
@@ -825,14 +954,22 @@ function hideTypingIndicator() {
     typingIndicator.classList.remove('active');
 }
 
-// Scroll to Bottom
+// Scroll to Bottom (Android compatible)
 function scrollToBottom() {
     setTimeout(() => {
         if (messagesWrapper) {
-            messagesWrapper.scrollTo({
-                top: messagesWrapper.scrollHeight,
-                behavior: 'smooth'
-            });
+            // Use scrollTop for better Android compatibility
+            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+            // Try smooth scroll as fallback
+            try {
+                messagesWrapper.scrollTo({
+                    top: messagesWrapper.scrollHeight,
+                    behavior: 'smooth'
+                });
+            } catch (e) {
+                // Fallback for older Android browsers
+                messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+            }
         }
     }, 100);
 }
