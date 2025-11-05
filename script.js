@@ -251,20 +251,35 @@ function setupEventListeners() {
         saveSettings();
     });
     
-    // Suggestion chips - fix to work with translations
+    // Suggestion chips - fix to work with translations (touch support)
     suggestionChips.forEach(chip => {
-        chip.addEventListener('click', () => {
+        const handleChip = () => {
             const prompt = chip.getAttribute('data-prompt');
             if (prompt) {
                 messageInput.value = prompt;
-                messageInput.focus();
-                autoResizeTextarea();
+                // Delay focus on mobile to prevent keyboard issues
+                setTimeout(() => {
+                    messageInput.focus();
+                    autoResizeTextarea();
+                }, 100);
             }
+        };
+        chip.addEventListener('click', handleChip);
+        chip.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleChip();
         });
     });
 
-    // File attachment functionality
+    // File attachment functionality (touch support)
     attachBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        attachDropdown?.classList.toggle('active');
+        attachBtn?.classList.toggle('active');
+    });
+    
+    attachBtn?.addEventListener('touchend', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         attachDropdown?.classList.toggle('active');
         attachBtn?.classList.toggle('active');
@@ -299,32 +314,65 @@ function setupEventListeners() {
         }
     });
 
-    // History sidebar
-    historyToggleBtn?.addEventListener('click', () => {
+    // History sidebar (touch support)
+    const toggleHistory = () => {
         historySidebar?.classList.toggle('hidden');
+    };
+    
+    const closeHistory = () => {
+        historySidebar?.classList.add('hidden');
+    };
+    
+    historyToggleBtn?.addEventListener('click', toggleHistory);
+    historyToggleBtn?.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        toggleHistory();
     });
 
-    closeHistoryBtn?.addEventListener('click', () => {
-        historySidebar?.classList.add('hidden');
+    closeHistoryBtn?.addEventListener('click', closeHistory);
+    closeHistoryBtn?.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        closeHistory();
     });
 
     // Close history sidebar on mobile when clicking outside
     if (window.innerWidth <= 768) {
-        document.addEventListener('click', (e) => {
+        const handleOutsideClick = (e) => {
             if (historySidebar && !historySidebar.contains(e.target) && 
                 !historyToggleBtn?.contains(e.target) && 
                 !historySidebar.classList.contains('hidden')) {
                 historySidebar.classList.add('hidden');
             }
-        });
+        };
+        document.addEventListener('click', handleOutsideClick);
+        document.addEventListener('touchend', handleOutsideClick);
     }
 }
 
 // Auto-resize textarea
+let resizeTimeout;
 function autoResizeTextarea() {
-    messageInput.addEventListener('input', () => {
+    if (!messageInput) return;
+    
+    const resize = () => {
         messageInput.style.height = 'auto';
         messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        // Scroll to bottom on mobile
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                messagesWrapper?.scrollTo({ top: messagesWrapper.scrollHeight, behavior: 'smooth' });
+            }, 100);
+        }
+    };
+    
+    messageInput.addEventListener('input', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resize, 10);
+    });
+    
+    // Handle iOS resize
+    messageInput.addEventListener('focus', () => {
+        setTimeout(resize, 100);
     });
 }
 
@@ -780,7 +828,12 @@ function hideTypingIndicator() {
 // Scroll to Bottom
 function scrollToBottom() {
     setTimeout(() => {
-        messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+        if (messagesWrapper) {
+            messagesWrapper.scrollTo({
+                top: messagesWrapper.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
     }, 100);
 }
 
