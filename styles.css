@@ -64,12 +64,9 @@ body {
         height: 100%;
         height: -webkit-fill-available;
         height: 100dvh; /* Android Chrome */
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     body {
@@ -78,6 +75,7 @@ body {
         min-height: 100vh;
         min-height: -webkit-fill-available;
         min-height: 100dvh;
+        position: relative;
     }
 }
 
@@ -85,12 +83,17 @@ body {
 .home-screen {
     width: 100%;
     max-width: 1200px;
-    min-height: calc(100vh - 40px);
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 40px 20px;
+    padding-top: 20px;
     animation: fadeIn 0.5s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeIn {
@@ -107,6 +110,7 @@ body {
 .home-content {
     width: 100%;
     max-width: 900px;
+    margin: auto 0;
 }
 
 .home-header {
@@ -518,6 +522,7 @@ body {
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
+    min-height: 0;
 }
 
 .history-toggle-btn {
@@ -629,10 +634,13 @@ body {
 .chat-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 24px;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    min-height: 0;
+    flex-shrink: 1;
 }
 
 .chat-container::-webkit-scrollbar {
@@ -1353,12 +1361,9 @@ body {
         max-height: 100dvh;
         border-radius: 0;
         margin: 0;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        position: relative;
         width: 100vw;
+        overflow: visible;
     }
 
     .history-sidebar {
@@ -1388,13 +1393,10 @@ body {
         min-height: 100dvh; /* Android Chrome */
         min-height: -webkit-fill-available;
         width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        position: relative;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        overflow-x: hidden;
     }
 
     .home-hero {
@@ -1438,12 +1440,22 @@ body {
         position: sticky;
         top: 0;
         z-index: 10;
+        flex-shrink: 0;
     }
 
     .chat-input-area {
         position: sticky;
         bottom: 0;
         z-index: 10;
+        flex-shrink: 0;
+    }
+
+    .chat-container {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
     }
 
     .bot-info {
